@@ -26,7 +26,7 @@ npm run dev                 # http://localhost:5173 (proxies /api to :5000)
 The app works without `GEMINI_API_KEY`: tickets are classified by keyword rules and admins write replies manually.
 
 ### Test credentials (created by `npm run seed`)
-| Role | Email | Password |
+| Role | Email | Password 
 |---|---|---|
 | Admin | admin@bookleaf.com | Admin@123 |
 | Author (any of the 10) | priya.sharma@email.com, rohit.kapoor@email.com, … | Author@123 |
