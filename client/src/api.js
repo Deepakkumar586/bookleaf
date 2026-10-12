@@ -1,5 +1,5 @@
 // All backend calls go through here. The AI key never reaches the browser: the client only talks to our API.
-const BASE = "https://your-backend-service.onrender.com" || "/api";
+const BASE = import.meta.env.VITE_API_URL || "/api";
 
 export class ApiError extends Error {
   constructor(status, body) {
