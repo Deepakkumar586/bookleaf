@@ -13,15 +13,29 @@ import { AppError } from "./utils/AppError.js";
 import { aiEnabled } from "./services/ai/aiClient.js";
 
 const app = express();
-app.use(helmet());
+const normalizeOrigin = (origin) => {
+  try {
+    return new URL(origin).origin;
+  } catch {
+    return origin;
+  }
+};
 const allowedOrigins = new Set([
   env.clientOrigin,
   "https://bookleaf-rouge.vercel.app",
   "http://localhost:5173",
-]);
-app.use(cors({
-  origin: (origin, callback) => callback(null, !origin || allowedOrigins.has(origin)),
-}));
+  "http://127.0.0.1:5173",
+].map(normalizeOrigin));
+const corsOptions = {
+  origin: (origin, callback) =>
+    callback(null, !origin || allowedOrigins.has(normalizeOrigin(origin))),
+  methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  optionsSuccessStatus: 204,
+  maxAge: 600,
+};
+app.use(cors(corsOptions));
+app.use(helmet());
 app.use(express.json({ limit: "100kb" }));
 if (!env.isProd) app.use(morgan("dev"));
 

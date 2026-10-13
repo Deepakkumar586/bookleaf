@@ -39,7 +39,7 @@ Good authors to test edge cases: `sneha.kulkarni@email.com` (book in production)
 ### Deploy to Vercel (separate frontend and backend projects)
 
 - **Frontend project:** set the Root Directory to `client`, use the Vite framework preset, build with `npm run build`, and use `dist` as the output directory. Set `VITE_API_URL` to `https://bookleaf-dfg5.vercel.app/api` for Production builds.
-- **Backend project:** set the Root Directory to `server`. Vercel serves `api/[...path].js` as the Express function; keep the backend project’s `MONGODB_URI` and `JWT_SECRET` in Vercel Project Settings → Environment Variables (never in frontend variables). Set `CLIENT_ORIGIN` to `https://bookleaf-rouge.vercel.app`.
+- **Backend project:** set the Root Directory to `server` and the Framework Preset to Express. Vercel discovers `src/app.js` as the Express application and routes requests through it; do not set an Output Directory or a rewrite that bypasses the app. Keep the backend project’s `MONGODB_URI` and `JWT_SECRET` in Vercel Project Settings → Environment Variables (never in frontend variables). Set `CLIENT_ORIGIN` to `https://bookleaf-rouge.vercel.app`.
 - Redeploy both projects after changing environment variables. `/api/health` checks MongoDB connectivity; the backend root `/` is not an API route and may return 404.
 
 ## 2. Architecture
@@ -126,7 +126,6 @@ Status codes: 400 invalid id/book, 401 unauthenticated, 403 wrong role, 404 not 
 - Attachments are UI-only (names recorded); next: S3-style signed uploads.
 - Polling instead of push; next: SSE/WebSocket or MongoDB change streams.
 - Classification accuracy is not yet measured; next: a labelled eval set and prompt regression tests.
-- No automated tests yet (suggested: supertest for RBAC/validation, mocked LLM for degradation paths).
+- Backend API routing/CORS regression checks: run `cd server && npm test`; they verify production-origin preflight headers and that login reaches the controller with CORS headers on error responses.
 - Passwords are seeded; production would need password reset, admin user management and audit logs.
 - AI draft sends author data to a third-party LLM; production needs a data-processing agreement and PII minimisation (phone/email are already excluded from prompts).
-
