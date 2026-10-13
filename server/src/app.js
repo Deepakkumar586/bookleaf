@@ -6,18 +6,42 @@ import helmet from "helmet";
 import cors from "cors";
 import morgan from "morgan";
 import { env } from "./config/env.js";
+import { connectDB, pingDB } from "./config/db.js";
 import routes from "./routes/index.js";
 import { notFound, errorHandler } from "./middleware/error.js";
+import { AppError } from "./utils/AppError.js";
 import { aiEnabled } from "./services/ai/aiClient.js";
 
 const app = express();
 app.use(helmet());
-app.use(cors({ origin: env.clientOrigin }));
+const allowedOrigins = new Set([
+  env.clientOrigin,
+  "https://bookleaf-rouge.vercel.app",
+  "http://localhost:5173",
+]);
+app.use(cors({
+  origin: (origin, callback) => callback(null, !origin || allowedOrigins.has(origin)),
+}));
 app.use(express.json({ limit: "100kb" }));
 if (!env.isProd) app.use(morgan("dev"));
 
-app.get("/api/health", (_req, res) => res.json({ status: "ok", ai: aiEnabled() ? "configured" : "disabled" }));
-app.use("/api", routes);
+app.get("/api/health", async (_req, res) => {
+  try {
+    await pingDB();
+    res.json({ status: "ok", database: "ok", ai: aiEnabled() ? "configured" : "disabled" });
+  } catch {
+    res.status(503).json({ status: "error", database: "unavailable", ai: aiEnabled() ? "configured" : "disabled" });
+  }
+});
+
+app.use("/api", async (_req, _res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch {
+    next(new AppError(503, "Database unavailable", "DATABASE_UNAVAILABLE"));
+  }
+}, routes);
 app.use("/api", notFound);
 
 // Optional: serve the built React app from the same service (single-deploy on Render/Railway).

@@ -36,6 +36,12 @@ Good authors to test edge cases: `sneha.kulkarni@email.com` (book in production)
 ### Deploy (single service)
 `cd client && npm run build` — Express serves `client/dist` automatically when it exists. On Render/Railway: build command `cd client && npm i && npm run build && cd ../server && npm i`, start command `cd server && npm start`, env vars as in `.env.example` (use MongoDB Atlas) and `NODE_ENV=production`, `CLIENT_ORIGIN=<your url>`. Run `npm run seed` once against the production DB.
 
+### Deploy to Vercel (separate frontend and backend projects)
+
+- **Frontend project:** set the Root Directory to `client`, use the Vite framework preset, build with `npm run build`, and use `dist` as the output directory. Set `VITE_API_URL` to `https://bookleaf-dfg5.vercel.app/api` for Production builds.
+- **Backend project:** set the Root Directory to `server`. Vercel serves `api/[...path].js` as the Express function; keep the backend project’s `MONGODB_URI` and `JWT_SECRET` in Vercel Project Settings → Environment Variables (never in frontend variables). Set `CLIENT_ORIGIN` to `https://bookleaf-rouge.vercel.app`.
+- Redeploy both projects after changing environment variables. `/api/health` checks MongoDB connectivity; the backend root `/` is not an API route and may return 404.
+
 ## 2. Architecture
 
 ```
@@ -123,5 +129,4 @@ Status codes: 400 invalid id/book, 401 unauthenticated, 403 wrong role, 404 not 
 - No automated tests yet (suggested: supertest for RBAC/validation, mocked LLM for degradation paths).
 - Passwords are seeded; production would need password reset, admin user management and audit logs.
 - AI draft sends author data to a third-party LLM; production needs a data-processing agreement and PII minimisation (phone/email are already excluded from prompts).
-
 

@@ -1,5 +1,5 @@
 // All backend calls go through here. The AI key never reaches the browser: the client only talks to our API.
-const BASE = import.meta.env.VITE_API_URL || "/api";
+const BASE = (import.meta.env.VITE_API_URL || "/api").replace(/\/+$/, "");
 
 export class ApiError extends Error {
   constructor(status, body) {
