@@ -13,7 +13,7 @@ export const env = {
   mongoUri: process.env.MONGODB_URI,
   jwtSecret: process.env.JWT_SECRET,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "8h",
-  clientOrigin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
+  clientOrigin: process.env.CLIENT_ORIGIN || "https://bookleaf-rouge.vercel.app",
   openaiKey: process.env.OPENAI_API_KEY || "",
   aiBaseUrl: process.env.AI_BASE_URL || undefined,
   aiModel: process.env.AI_MODEL || "gpt-4o-mini",
